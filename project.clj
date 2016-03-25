@@ -4,10 +4,11 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.cli "0.3.3"]
-                 [ymilky/franzy-admin "0.0.1"]]
-                 ;; [org.apache.kafka/kafka_2.9.2 "0.8.1.1"
-                 ;;  :exclusions [javax.jms/jms
-                 ;;               com.sun.jdmk/jmxtools
-                 ;;               com.sun.jmx/jmxri]]]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [ymilky/franzy-admin "0.0.1"]
+                 [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
+                                                    javax.jms/jms
+                                                    com.sun.jmdk/jmxtools
+                                                    com.sun.jmx/jmxri]]]
   :aot [manage-topics.core]
   :main manage-topics.core)

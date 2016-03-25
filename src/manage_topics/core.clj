@@ -1,3 +1,12 @@
+;; manage-topics
+;;
+;; it's a command line tool that manages the state of a cluster's topics
+;; from an .ini file.
+;;
+;; TODO:
+;;  + document ini format
+;;  + create topics
+
 (ns manage-topics.core
   (:require [clojure.tools.cli :refer [parse-opts]]
             [franzy.admin.topics :refer [all-topics delete-topic!]]
@@ -5,7 +14,7 @@
   (:gen-class))
 
 (defn- usage [options-summary]
-  (->> ["Manage percobus topics"
+  (->> ["Manage kafka topics"
         ""
         "Usage: manage-topics action [options]"
         ""
@@ -14,9 +23,9 @@
         ""
         "Actions:"
         "  check    check that the topics are right"
-        "  list     list topics on the kafka cluster"
         "  create   create all the topics on the cluster"
-        "  delete   DANGER delete all the topics on the cluster"
+        "  delete   delete all the topics on the cluster"
+        "  list     list topics on the kafka cluster"
         ""
         "Have a great day!"]
        (clojure.string/join \newline)))
@@ -24,8 +33,8 @@
 (def cli-options
   [["-z" "--zookeeper HOST" "the zookeeper host"
     :default "localhost:2181"]
-   ["-b" "--broker HOST" "a kafka broker"
-    :default "localhost:9092"]
+   ["-t" "--topics-ini" "path to topics.ini file"
+    :default "topics.ini"]
    ["-h" "--help"]])
 
 (defn- exit [status msg]
@@ -57,7 +66,10 @@
 (defn -main
   "Manage topics"
   [& args]
+  ;; good lord log4j
   (org.apache.log4j.BasicConfigurator/configure)
+  (.setLevel  (org.apache.log4j.Logger/getRootLogger) org.apache.log4j.Level/ERROR)
+
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
     (cond
