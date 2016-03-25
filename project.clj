@@ -6,6 +6,7 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ymilky/franzy-admin "0.0.1"]
+                 [clojure-ini "0.0.2"]
                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
                                                     javax.jms/jms
                                                     com.sun.jmdk/jmxtools

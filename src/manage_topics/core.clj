@@ -9,6 +9,7 @@
 
 (ns manage-topics.core
   (:require [clojure.tools.cli :refer [parse-opts]]
+            [clojure-ini.core :refer [read-ini]]
             [franzy.admin.topics :refer [all-topics delete-topic!]]
             [franzy.admin.zookeeper.client :as client])
   (:gen-class))
@@ -33,7 +34,7 @@
 (def cli-options
   [["-z" "--zookeeper HOST" "the zookeeper host"
     :default "localhost:2181"]
-   ["-t" "--topics-ini" "path to topics.ini file"
+   ["-t" "--topics-ini PATH" "path to topics.ini file"
     :default "topics.ini"]
    ["-h" "--help"]])
 
@@ -41,19 +42,23 @@
   (println msg)
   (System/exit status))
 
-(defn- check-topics
-  [options]
-  (println options))
-
 (defn- get-zk [options]
   (client/make-zk-utils
    {:servers (:zookeeper options)}
    false))
 
-(defn- list-topics
+(defn- get-config [options]
+  (read-ini (:topics-ini options) :comment-char \#))
+
+(defn- check-topics
   [options]
-  (with-open [zk (get-zk options)]
-    (doall (map println (sort (all-topics zk))))))
+  (println options))
+
+(defn- create-topics
+  [options]
+  (let [config (get-config options)]
+    (println config))
+  (println options))
 
 (defn- delete-topics
   [options]
@@ -63,12 +68,18 @@
   (with-open [zk (get-zk options)]
     (doall (map (partial delete-topic! zk) (all-topics zk)))))
 
+(defn- list-topics
+  [options]
+  (with-open [zk (get-zk options)]
+    (doall (map println (sort (all-topics zk))))))
+
 (defn -main
   "Manage topics"
   [& args]
   ;; good lord log4j
   (org.apache.log4j.BasicConfigurator/configure)
-  (.setLevel  (org.apache.log4j.Logger/getRootLogger) org.apache.log4j.Level/ERROR)
+  (.setLevel (org.apache.log4j.Logger/getRootLogger)
+             org.apache.log4j.Level/ERROR)
 
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
@@ -76,6 +87,7 @@
       (:help options) (exit 0 (usage summary)))
     (case (first arguments)
       "check" (check-topics options)
-      "list" (list-topics options)
+      "create" (create-topics options)
       "delete" (delete-topics options)
+      "list" (list-topics options)
       (exit 1 (usage summary)))))
