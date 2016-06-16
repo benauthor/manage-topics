@@ -2,6 +2,6 @@
 [my.namespace.turtle_created]
 message_type = mynamespace.foo.bar.turtle_created
 partition_strategy = random
-replication_factor = 3
+replication_factor = 1
 partitions = 100
 retention_ms = 1000000000

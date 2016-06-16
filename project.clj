@@ -11,5 +11,7 @@
                                                     javax.jms/jms
                                                     com.sun.jmdk/jmxtools
                                                     com.sun.jmx/jmxri]]]
+  :plugins [[lein-bin "0.3.5"]]
+  :bin { :name "manage-topics" }
   :aot [manage-topics.core]
   :main manage-topics.core)
