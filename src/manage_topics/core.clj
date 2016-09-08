@@ -59,24 +59,24 @@
 (def default-key "DEFAULT")
 
 ;; map of command line arguments and the .ini options they map to
-(def overrides {"partitions" "partitions"
-                "replication" "replication_factor"})
+(def overrides {"partitions" :partitions
+                "replication" :replication})
 
 ;; map of .ini file names and the options as kafka expects to see them
-(def kafka-configs {:cleanup_policy "cleanup.policy"
-                    :delete_retention_ms "delete.retention.ms"
-                    :flush_messages "flush.messages"
-                    :flush_ms "flush.ms"
-                    :index_interval_bytes "index.interval.bytes"
-                    :max_message_bytes "max.message.bytes"
-                    :min_cleanable_dirty_ratio "min.cleanable.dirty.ratio"
-                    :min_insync_replicas "min.insync.replicas"
-                    :retention_bytes "retention.bytes"
-                    :retention_ms "retention.ms"
-                    :segment_bytes "segment.bytes"
-                    :segment_index_bytes "segment.index.bytes"
-                    :segment_jitter_ms "segment.jitter.ms"
-                    :segment_ms "segment.ms"
+(def kafka-configs {:cleanup.policy "cleanup.policy"
+                    :delete.retention.ms "delete.retention.ms"
+                    :flush.messages "flush.messages"
+                    :flush.ms "flush.ms"
+                    :index.interval.bytes "index.interval.bytes"
+                    :max.message.bytes "max.message.bytes"
+                    :min.cleanable.dirty.ratio "min.cleanable.dirty.ratio"
+                    :min.insync.replicas "min.insync.replicas"
+                    :retention.bytes "retention.bytes"
+                    :retention.ms "retention.ms"
+                    :segment.bytes "segment.bytes"
+                    :segment.index.bytes "segment.index.bytes"
+                    :segment.jitter.ms "segment.jitter.ms"
+                    :segment.ms "segment.ms"
                     })
 
 (defn- get-zk-from-options [options]
@@ -166,7 +166,7 @@
         ;; log if no diff
         (let [topic-config (config new-topic)
               partitions (Integer. (topic-config :partitions))
-              replication (Integer. (topic-config :replication_factor))
+              replication (Integer. (topic-config :replication))
               kafka-config (kafka-config-from-target-config topic-config)]
           (when verbose
             (println "creating" new-topic)
@@ -185,6 +185,8 @@
   (println "deleting all topics! are you sure? type 'yes'")
   (when (not= (read-line) "yes")
     (exit 1 "bailing out"))
+  ;; TODO only delete topics in the .ini, leave others be?
+  ;; or have 2 commands, or a flag?
   (with-open [zk (get-zk-from-options options)]
     (doseq [topic (all-topics zk)]
       (delete-topic! zk topic))))

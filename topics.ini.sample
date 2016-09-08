@@ -1,7 +1,15 @@
-# here's my awesome topics.ini
+# here's my awesome sample topics.ini
+
 [my.namespace.turtle_created]
-message_type = mynamespace.foo.bar.turtle_created
-partition_strategy = random
-replication_factor = 1
+replication = 3
 partitions = 100
-retention_ms = 1000000000
+retention.ms = 1000000000
+# these keys are not used by the tool, but may be useful
+# for humans or for some other automation in your system
+message_type = foo.bar.turtle_message
+partition_strategy = random
+
+[my.namespace.turtle_destroyed]
+replication = 1
+partitions = 4
+message_type = foo.bar.turtle_message
