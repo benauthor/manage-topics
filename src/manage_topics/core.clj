@@ -58,9 +58,8 @@
 ;; other sections
 (def default-key "DEFAULT")
 
-;; map of command line arguments and the .ini options they map to
-(def overrides {"partitions" :partitions
-                "replication" :replication})
+;; properties that may be overriden from the command line
+(def overrides [:partitions :replication])
 
 ;; map of .ini file names and the options as kafka expects to see them
 (def kafka-configs {:cleanup.policy "cleanup.policy"
@@ -87,9 +86,9 @@
 
 (defn- get-overrides-from-options [options]
   "get configuration overrides from command line arguments"
-  (into {} (for [[options-key ini-key] overrides
-                 :when (not (nil? (options options-key)))]
-             [ini-key (options options-key)])))
+  (into {} (for [key overrides
+                 :when (not (nil? (options key)))]
+             [key (options key)])))
 
 (defn- get-target-config-from-options [options]
   "get config from an .ini file at a path defined in options"
@@ -213,6 +212,7 @@
         (parse-opts args cli-options)]
     (when (:help options)
       (exit 0 (usage summary)))
+
     (do-configure-logging options)
     (case (first arguments)
       "check" (do-check-topics options)
