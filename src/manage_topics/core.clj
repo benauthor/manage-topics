@@ -168,7 +168,6 @@
               partitions (Integer. (topic-config :partitions))
               replication (Integer. (topic-config :replication_factor))
               kafka-config (kafka-config-from-target-config topic-config)]
-          ;; TODO only print when verbose
           (when verbose
             (println "creating" new-topic)
             (println "replication" replication)
@@ -196,18 +195,23 @@
   (with-open [zk (get-zk-from-options options)]
     (doall (map println (sort (all-topics zk))))))
 
+(defn- do-configure-logging
+  "configure logging based on options"
+  [options]
+  (org.apache.log4j.BasicConfigurator/configure)
+  (.setLevel (org.apache.log4j.Logger/getRootLogger)
+             (if (:verbose options)
+               org.apache.log4j.Level/INFO
+               org.apache.log4j.Level/ERROR)))
+
 (defn -main
   "Manage topics"
   [& args]
-  ;; good lord log4j
-  (org.apache.log4j.BasicConfigurator/configure)
-  (.setLevel (org.apache.log4j.Logger/getRootLogger)
-             org.apache.log4j.Level/ERROR)
-
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
     (when (:help options)
       (exit 0 (usage summary)))
+    (do-configure-logging options)
     (case (first arguments)
       "check" (do-check-topics options)
       "create" (do-create-topics options)
