@@ -133,9 +133,9 @@
         (let [[missing-from-cluster extra-on-cluster _]
               (diff desired-translated found)]
           (when missing-from-cluster
-            (error topic "config missing from cluster:" missing-from-cluster)
+            (error topic "config missing from cluster:" missing-from-cluster))
           (when extra-on-cluster
-            (error topic "extra config on cluster:" extra-on-cluster))))))))
+            (error topic "extra config on cluster:" extra-on-cluster)))))))
 
 (defn- do-check-topics
   "check topics action"
@@ -150,7 +150,7 @@
       ;; TODO check partitions and replication
       ;; TODO filter out __consumer_offsets
       (when verbose
-        (println "checking all topics")
+        (println "checking all topics"))
       (check-extra-and-missing ini-topics existing-topics)
       (check-topic-config config actual-config))))
 
