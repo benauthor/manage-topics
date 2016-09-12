@@ -56,7 +56,7 @@
 
 ;; special .ini file section whose contents should be applied to all
 ;; other sections
-(def default-key "DEFAULT")
+(def default-key :DEFAULT)
 
 ;; properties that may be overriden from the command line
 (def overrides [:partitions :replication])
