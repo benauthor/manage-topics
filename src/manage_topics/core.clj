@@ -3,8 +3,6 @@
 ;; it's a command line tool that manages the state of a cluster's topics
 ;; from an .ini file.
 ;;
-;; TODO:
-;;  + document ini format
 
 (ns manage-topics.core
   (:require [clojure.tools.cli :refer [parse-opts]]
@@ -46,12 +44,12 @@
    ["-v" "--verbose" "be extra verbose"]
    ["-h" "--help"]])
 
-(defn error [& rest]
+(defn- error [& rest]
   (.println *err* (clojure.string/join " " rest)))
 
-(defn- exit [status msg]
+(defn- exit [status & msg-parts]
   "Exit the process with a status and message"
-  (error msg)
+  (apply error msg-parts)
   (System/exit status))
 
 ;; special .ini file section whose contents should be applied to all
@@ -144,14 +142,25 @@
   [options]
   (with-open [zk (get-zk-from-options options)]
     (let [config (get-target-config-from-options options)
+          verbose (:verbose options)
           ini-topics (map name (keys config))
           existing-topics (all-topics zk)
           metadata (topics-metadata zk existing-topics) ;; not actually what i need
           actual-config (all-topic-configs zk)]
       ;; TODO check partitions and replication
       ;; TODO filter out __consumer_offsets
+      (when verbose
+        (println "checking all topics")
       (check-extra-and-missing ini-topics existing-topics)
       (check-topic-config config actual-config))))
+
+(defn- validate-topic-config
+  "make sure we can create a topic from config"
+  [topic-config]
+  (cond
+    (nil? (topic-config :partitions)) "partitions undefined"
+    (nil? (topic-config :replication)) "replication undefined"
+    :else nil))
 
 (defn- do-create-topics
   "create topics action"
@@ -162,6 +171,9 @@
           existing-topics (all-topics zk)]
       (doseq [new-topic (difference (set (keys config))
                                     (set (map keyword existing-topics)))]
+        (let [config-error (validate-topic-config (config new-topic))]
+          (when config-error
+            (exit 1 "cannot create" (name new-topic) "--" config-error)))
         ;; log if no diff
         (let [topic-config (config new-topic)
               partitions (Integer. (topic-config :partitions))

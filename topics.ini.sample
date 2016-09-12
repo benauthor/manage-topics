@@ -1,5 +1,9 @@
 # here's my awesome sample topics.ini
 
+[DEFAULT]
+replication = 1
+partitions = 10
+
 [my.namespace.turtle_created]
 replication = 3
 partitions = 100
@@ -10,6 +14,8 @@ message_type = foo.bar.turtle_message
 partition_strategy = random
 
 [my.namespace.turtle_destroyed]
-replication = 1
-partitions = 4
+replication = 3
 message_type = foo.bar.turtle_message
+
+[no.config.just.name]
+# if the defaults are fine, no need to say anything
